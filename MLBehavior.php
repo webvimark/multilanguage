@@ -35,14 +35,6 @@ class MLBehavior extends Behavior
 	 */
 	private $_replaceOriginalAttributes = true;
 
-	/**
-	 * If you want ta work with virtual attributes not only in admin routes
-	 * user this method. It will initialize them and fill with corresponding translations
-	 */
-	public function loadModelTranslations()
-	{
-
-	}
 
 	public function events()
 	{
@@ -52,6 +44,20 @@ class MLBehavior extends Behavior
 			ActiveRecord::EVENT_AFTER_UPDATE => 'mlAfterSave',
 			ActiveRecord::EVENT_AFTER_DELETE => 'mlAfterDelete',
 		];
+	}
+
+	/**
+	 * If you want ta work with virtual attributes not only in admin routes
+	 * user this method. It will initialize them and fill with corresponding translations
+	 */
+	public function loadModelTranslations()
+	{
+		foreach ($this->mlGetModelTransactions() as $translate)
+		{
+			$attribute = $translate['attribute'] . '_' . $translate['lang'];
+
+			$this->owner->$attribute = $translate['value'];
+		}
 	}
 
 	/**
@@ -93,15 +99,29 @@ class MLBehavior extends Behavior
 			$this->_replaceOriginalAttributes = false;
 		}
 
-		foreach ($this->mlGetTranslations() as $translate)
+
+		if ( in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) )
+		{
+			$translations = $this->mlGetTranslations();
+		}
+		else
+		{
+			$translations = $this->mlGetLanguageSpecificTranslations();
+		}
+
+		foreach ($translations as $translate)
 		{
 			if ( $this->owner->id == $translate['model_id'] )
 			{
-				$this->owner->{$translate['attribute']} = $translate['value'];
-
 				if ( $this->_replaceOriginalAttributes )
 				{
 					$this->mlReplaceOriginalAttribute($translate);
+				}
+				elseif ( isset($this->mlConfig['languages'][$translate['lang']]) )
+				{
+					$attribute = $translate['attribute'] . '_' . $translate['lang'];
+
+					$this->owner->$attribute = $translate['value'];
 				}
 			}
 		}
@@ -121,7 +141,21 @@ class MLBehavior extends Behavior
 		{
 			if ( isset($event->sender->$attribute) AND $event->sender->$attribute !== null)
 			{
-				$this->mlSaveTranslatedAttribute($attribute, $event->sender->$attribute);
+				$tmp = explode('_', $attribute);
+
+				$language = array_pop($tmp);
+
+				$originalAttribute = implode('_', $tmp);
+
+				if ( $event->name == 'afterUpdate' )
+				{
+					$this->mlSaveTranslatedAttribute($originalAttribute, $event->sender->$attribute, $language);
+				}
+				// If afterInsert - insert only non empty values
+				elseif ( $event->sender->$attribute !== '' )
+				{
+					$this->mlInsertTranslatedAttribute($originalAttribute, $event->sender->$attribute, $language);
+				}
 			}
 		}
 	}
@@ -160,16 +194,9 @@ class MLBehavior extends Behavior
 	 */
 	private function mlReplaceOriginalAttribute($translate)
 	{
-		$translatedAttribute = $translate['attribute'];
-
-		$tmp = explode('_', $translatedAttribute);
-		$lang = end($tmp);
-
-		if ( $lang == Yii::$app->language )
+		if ( $translate['lang'] == Yii::$app->language )
 		{
-			$originalAttribute = substr($translatedAttribute, 0, -(strlen($lang) + 1));
-
-			$this->owner->$originalAttribute = $translate['value'];
+			$this->owner->{$translate['attribute']} = $translate['value'];
 		}
 	}
 
@@ -183,11 +210,10 @@ class MLBehavior extends Behavior
 		if ( !$values )
 		{
 			$values = (new Query())
-				->select(['model_id', 'attribute', 'value'])
+				->select(['model_id', 'attribute', 'value', 'lang'])
 				->from($this->mlGetTranslationTable())
 				->where([
 					'table_name' => $this->owner->tableName(),
-//					'model_id'   => $this->owner->id,
 				])
 				->all();
 
@@ -198,51 +224,100 @@ class MLBehavior extends Behavior
 	}
 
 	/**
-	 * @param string $name
-	 * @param string $value
+	 * @return array
 	 */
-	private function mlSaveTranslatedAttribute($name, $value)
+	private function mlGetModelTransactions()
 	{
-		if ( $this->owner->isNewRecord )
+		$values = Singleton::getData('_ml_' . $this->owner->tableName());
+
+		if ( !$values )
 		{
-			$this->mlInsertTranslatedAttribute($name, $value);
-		}
-		else
-		{
-			$oldValue = $this->_mlQuery
-				->select('value')
+			$values = (new Query())
+				->select(['attribute', 'value', 'lang'])
 				->from($this->mlGetTranslationTable())
 				->where([
 					'table_name' => $this->owner->tableName(),
 					'model_id'   => $this->owner->id,
-					'attribute'  => $name,
 				])
-				->limit(1)
-				->scalar();
+				->all();
 
-			if ( $oldValue === false )
-			{
-				$this->mlInsertTranslatedAttribute($name, $value);
-			}
-			elseif ( $oldValue != $value )
-			{
-				$this->mlUpdateTranslatedAttribute($name, $value);
-			}
+			Singleton::setData('_ml_' . $this->owner->tableName(), $values);
 		}
 
+		return $values;
+	}
+
+	/**
+	 * @param null|string $language
+	 *
+	 * @return array
+	 */
+	private function mlGetLanguageSpecificTranslations($language = null)
+	{
+		if ( !$language )
+			$language = Yii::$app->language;
+
+		$values = Singleton::getData('_ml_' . $this->owner->tableName() . '_' . $language);
+
+		if ( !$values )
+		{
+			$values = (new Query())
+				->select(['model_id', 'attribute', 'value', 'lang'])
+				->from($this->mlGetTranslationTable())
+				->where([
+					'table_name' => $this->owner->tableName(),
+					'lang'       => $language,
+				])
+				->all();
+
+			Singleton::setData('_ml_' . $this->owner->tableName() . '_' . $language, $values);
+		}
+
+		return $values;
 	}
 
 	/**
 	 * @param string $name
 	 * @param string $value
+	 * @param string $language
 	 */
-	private function mlInsertTranslatedAttribute($name, $value)
+	private function mlSaveTranslatedAttribute($name, $value, $language)
+	{
+		$oldValue = $this->_mlQuery
+			->select('value')
+			->from($this->mlGetTranslationTable())
+			->where([
+				'table_name' => $this->owner->tableName(),
+				'model_id'   => $this->owner->id,
+				'attribute'  => $name,
+				'lang'       => $language,
+			])
+			->limit(1)
+			->scalar();
+
+		if ( $oldValue === false AND $value !== '' )
+		{
+			$this->mlInsertTranslatedAttribute($name, $value, $language);
+		}
+		elseif ( $oldValue != $value )
+		{
+			$this->mlUpdateTranslatedAttribute($name, $value, $language);
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param        $language
+	 */
+	private function mlInsertTranslatedAttribute($name, $value, $language)
 	{
 		$this->_mlQuery->createCommand()
 			->insert($this->mlGetTranslationTable(), [
 				'table_name' => $this->owner->tableName(),
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
+				'lang'       => $language,
 				'value'      => $value,
 			])
 			->execute();
@@ -251,14 +326,16 @@ class MLBehavior extends Behavior
 	/**
 	 * @param string $name
 	 * @param string $value
+	 * @param        $language
 	 */
-	private function mlUpdateTranslatedAttribute($name, $value)
+	private function mlUpdateTranslatedAttribute($name, $value, $language)
 	{
 		$this->_mlQuery->createCommand()
 			->update($this->mlGetTranslationTable(), ['value'=>$value], [
 				'table_name' => $this->owner->tableName(),
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
+				'lang'       => $language,
 			])
 			->execute();
 	}
