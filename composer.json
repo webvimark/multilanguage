@@ -1,0 +1,9 @@
+{
+	"name": "webvimark/multilanguage",
+	"description": "Multilanguage for for yii 2",
+	"autoload": {
+		"psr-4": {
+			"webvimark\\behaviors\\multilanguage\\": ""
+		}
+	}
+}

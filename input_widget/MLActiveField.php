@@ -1,5 +1,5 @@
 <?php
-namespace app\webvimark\behaviors\multilanguage\input_widget;
+namespace webvimark\behaviors\multilanguage\input_widget;
 
 use yii\base\Widget;
 use yii\db\ActiveRecord;

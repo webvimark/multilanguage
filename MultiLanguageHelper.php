@@ -1,8 +1,9 @@
 <?php
-namespace app\webvimark\behaviors\multilanguage;
+namespace webvimark\behaviors\multilanguage;
 
 
 use Yii;
+use yii\helpers\Url;
 use yii\web\Cookie;
 
 class MultiLanguageHelper
@@ -45,4 +46,41 @@ class MultiLanguageHelper
 		}
 
 	}
+
+
+	/**
+	 * createMultilanguageReturnUrl
+	 *
+	 * @param string $lang
+	 * @return string
+	 *
+	 * @stolen from http://www.yiiframework.com/wiki/294/seo-conform-multilingual-urls-language-selector-widget-i18n/
+	 */
+	public static function createMultilanguageReturnUrl($lang)
+	{
+		if (count($_GET) > 0)
+		{
+			$arr = $_GET;
+			$arr['_language']= $lang;
+		}
+		else
+			$arr = array('_language'=>$lang);
+
+		if (Yii::$app->requestedRoute != Yii::$app->errorHandler->errorAction)
+		{
+			return Url::to('', $arr);
+//			return Yii::$app->controller->createUrl('', $arr);
+		}
+		else
+		{
+			if ( isset( $_SERVER['REQUEST_URI'], $_GET['_language'] ) )
+			{
+				$url = ltrim($_SERVER['REQUEST_URI'], '/'.$_GET['_language']);
+				return '/' . $lang .'/'. $url;
+			}
+			else
+				return Yii::$app->homeUrl;
+		}
+	}
+
 }

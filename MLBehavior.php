@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mark
- * Date: 7/5/14
- * Time: 1:15 PM
- */
 
-namespace app\webvimark\behaviors\multilanguage;
+namespace webvimark\behaviors\multilanguage;
 
 
 use yii\base\Behavior;
@@ -50,7 +44,7 @@ class MLBehavior extends Behavior
 	 * If you want ta work with virtual attributes not only in admin routes
 	 * user this method. It will initialize them and fill with corresponding translations
 	 */
-	public function loadModelTranslations()
+	public function loadTranslations()
 	{
 		foreach ($this->mlGetModelTransactions() as $translate)
 		{

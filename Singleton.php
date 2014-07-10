@@ -1,5 +1,5 @@
 <?php
-namespace app\webvimark\behaviors\multilanguage;
+namespace webvimark\behaviors\multilanguage;
 
 
 class Singleton
