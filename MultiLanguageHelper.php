@@ -69,7 +69,6 @@ class MultiLanguageHelper
 		if (Yii::$app->requestedRoute != Yii::$app->errorHandler->errorAction)
 		{
 			return Url::to('', $arr);
-//			return Yii::$app->controller->createUrl('', $arr);
 		}
 		else
 		{

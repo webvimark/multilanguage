@@ -6,12 +6,12 @@ use yii\db\ActiveRecord;
 use yii\helpers\Html;
 
 /**
- * Class MLActiveField
+ * Class MultiLanguageActiveField
  *
  * Render ActiveFrom field as
  * @package app\webvimark\behaviors\multilanguage\input_widget
  */
-class MLActiveField extends Widget
+class MultiLanguageActiveField extends Widget
 {
 	/**
 	 * @var ActiveRecord

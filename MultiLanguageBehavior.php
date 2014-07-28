@@ -10,7 +10,7 @@ use Yii;
 use yii\db\Query;
 use yii\validators\Validator;
 
-class MLBehavior extends Behavior
+class MultiLanguageBehavior extends Behavior
 {
 	public $mlConfig;
 
