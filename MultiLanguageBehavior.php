@@ -3,6 +3,7 @@
 namespace webvimark\behaviors\multilanguage;
 
 
+use webvimark\helpers\Singleton;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
@@ -69,7 +70,7 @@ class MultiLanguageBehavior extends Behavior
 
 			if ( empty($validators) )
 			{
-				$this->owner->createValidators()
+				$this->owner->getValidators()
 					->append(Validator::createValidator('string', $this->owner, $attribute));
 			}
 		}
@@ -93,6 +94,10 @@ class MultiLanguageBehavior extends Behavior
 			$this->_replaceOriginalAttributes = false;
 		}
 
+		// Remove unnecessary "/" from admin routes
+		array_walk($this->mlConfig['admin_routes'], function(&$val, $key) {
+			$val = trim($val, '/');
+		});
 
 		if ( in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) )
 		{
@@ -162,7 +167,7 @@ class MultiLanguageBehavior extends Behavior
 	public function mlAfterDelete($event)
 	{
 		(new Query())->createCommand()
-			->delete($this->mlGetTranslationTable(), [
+			->delete($this->mlConfig['db_table'], [
 				'table_name' => $this->owner->tableName(),
 				'model_id'   => $this->owner->id,
 			])
@@ -205,7 +210,7 @@ class MultiLanguageBehavior extends Behavior
 		{
 			$values = (new Query())
 				->select(['model_id', 'attribute', 'value', 'lang'])
-				->from($this->mlGetTranslationTable())
+				->from($this->mlConfig['db_table'])
 				->where([
 					'table_name' => $this->owner->tableName(),
 				])
@@ -228,7 +233,7 @@ class MultiLanguageBehavior extends Behavior
 		{
 			$values = (new Query())
 				->select(['attribute', 'value', 'lang'])
-				->from($this->mlGetTranslationTable())
+				->from($this->mlConfig['db_table'])
 				->where([
 					'table_name' => $this->owner->tableName(),
 					'model_id'   => $this->owner->id,
@@ -257,7 +262,7 @@ class MultiLanguageBehavior extends Behavior
 		{
 			$values = (new Query())
 				->select(['model_id', 'attribute', 'value', 'lang'])
-				->from($this->mlGetTranslationTable())
+				->from($this->mlConfig['db_table'])
 				->where([
 					'table_name' => $this->owner->tableName(),
 					'lang'       => $language,
@@ -279,7 +284,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		$oldValue = $this->_mlQuery
 			->select('value')
-			->from($this->mlGetTranslationTable())
+			->from($this->mlConfig['db_table'])
 			->where([
 				'table_name' => $this->owner->tableName(),
 				'model_id'   => $this->owner->id,
@@ -307,7 +312,7 @@ class MultiLanguageBehavior extends Behavior
 	private function mlInsertTranslatedAttribute($name, $value, $language)
 	{
 		$this->_mlQuery->createCommand()
-			->insert($this->mlGetTranslationTable(), [
+			->insert($this->mlConfig['db_table'], [
 				'table_name' => $this->owner->tableName(),
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
@@ -325,7 +330,7 @@ class MultiLanguageBehavior extends Behavior
 	private function mlUpdateTranslatedAttribute($name, $value, $language)
 	{
 		$this->_mlQuery->createCommand()
-			->update($this->mlGetTranslationTable(), ['value'=>$value], [
+			->update($this->mlConfig['db_table'], ['value'=>$value], [
 				'table_name' => $this->owner->tableName(),
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
@@ -370,11 +375,4 @@ class MultiLanguageBehavior extends Behavior
 		return $this->_mlAttributes;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function mlGetTranslationTable()
-	{
-		return $this->mlConfig['db_table'];
-	}
 } 

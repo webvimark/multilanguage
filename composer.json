@@ -5,5 +5,8 @@
 		"psr-4": {
 			"webvimark\\behaviors\\multilanguage\\": ""
 		}
+	},
+	"require": {
+		"webvimark/helpers": "*"
 	}
 }
