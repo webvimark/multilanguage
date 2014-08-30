@@ -33,7 +33,7 @@ class LanguageSelector extends Widget
 	 */
 	public function run()
 	{
-		$languages = Yii::$app->params['languages'];
+		$languages = Yii::$app->params['mlConfig']['languages'];
 
 		if (count($languages) > 1)
 		{

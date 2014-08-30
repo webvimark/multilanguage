@@ -14,7 +14,7 @@ class MultiLanguageUrlManager extends UrlManager
 	 */
 	public function init()
 	{
-		$languages = array_keys(Yii::$app->params['languages']);
+		$languages = array_keys(Yii::$app->params['mlConfig']['languages']);
 
 		if (count($languages) > 0)
 		{

@@ -23,7 +23,31 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
+Create table for translations (you can find table dumps in folder "data")
+
+In you params.php
+
+```php
+
+return [
+	...
+
+	'mlConfig'=>[
+		'default_language'=>'ru',
+		'languages'=>[
+			'ru'=>'Русский',
+			'en'=>'English',
+		],
+	],
+
+	...
+];
+
+```
+
 In your model
+
+( You also can change languages for this model (different from te ones in params) by defining them here )
 
 ```php
 
@@ -42,14 +66,8 @@ class Page extends \webvimark\components\BaseActiveRecord
 			'mlBehavior'=>[
 				'class'    => MultiLanguageBehavior::className(),
 				'mlConfig' => [
-					'db_table'         => 'translations',
+					'db_table'         => 'translations_with_string',
 					'attributes'       => ['name'],
-					'default_language' => 'ru',
-					'languages'        => [
-						'ru' => 'Russian',
-						'en' => 'English',
-						'de' => 'Dutch'
-					],
 					'admin_routes'     => [
 						'content/page/update',
 						'content/page/index',
@@ -64,3 +82,47 @@ class Page extends \webvimark\components\BaseActiveRecord
 
 ```
 
+In your Base Controller
+
+```php
+
+	public function init()
+	{
+		MultiLanguageHelper::catchLanguage();
+		parent::init();
+	}
+
+```
+
+In your config file
+
+```php
+
+'urlManager'   => [
+		'class'=>MultiLanguageUrlManager::className(),
+		'enablePrettyUrl' => true,
+		'showScriptName'=>false,
+		'rules'=>[
+
+			'<_c:[\w \-]+>/<id:\d+>'=>'<_c>/view',
+			'<_c:[\w \-]+>/<_a:[\w \-]+>/<id:\d+>'=>'<_c>/<_a>',
+			'<_c:[\w \-]+>/<_a:[\w \-]+>'=>'<_c>/<_a>',
+
+			'<_m:[\w \-]+>/<_c:[\w \-]+>/<_a:[\w \-]+>'=>'<_m>/<_c>/<_a>',
+			'<_m:[\w \-]+>/<_c:[\w \-]+>/<_a:[\w \-]+>/<id:\d+>'=>'<_m>/<_c>/<_a>',
+
+		],
+	],
+
+```
+
+
+In your _form.php
+
+```php
+
+<?= $form->field($model, 'name')
+		->textInput(['maxlength' => 255)
+		->widget(MultiLanguageActiveField::className()) ?>
+
+```

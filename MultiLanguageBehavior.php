@@ -42,6 +42,21 @@ class MultiLanguageBehavior extends Behavior
 	}
 
 	/**
+	 * Get languages and default language from params if they are not set explicitly
+	 */
+	public function init()
+	{
+		parent::init();
+
+		$this->mlConfig['default_language'] = Yii::$app->params['mlConfig']['default_language'];
+
+		if ( !isset($this->mlConfig['languages']) )
+		{
+			$this->mlConfig['languages'] = Yii::$app->params['mlConfig']['languages'];
+		}
+	}
+
+	/**
 	 * If you want ta work with virtual attributes not only in admin routes
 	 * user this method. It will initialize them and fill with corresponding translations
 	 */
