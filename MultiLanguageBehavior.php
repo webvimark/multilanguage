@@ -57,8 +57,8 @@ class MultiLanguageBehavior extends Behavior
 	}
 
 	/**
-	 * If you want ta work with virtual attributes not only in admin routes
-	 * user this method. It will initialize them and fill with corresponding translations
+	 * If you want to work with virtual attributes not only in admin routes
+	 * use this method. It will initialize them and fill with corresponding translations
 	 */
 	public function loadTranslations()
 	{
