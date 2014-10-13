@@ -122,7 +122,7 @@ In your _form.php
 ```php
 
 <?= $form->field($model, 'name')
-		->textInput(['maxlength' => 255)
+		->textInput(['maxlength' => 255])
 		->widget(MultiLanguageActiveField::className()) ?>
 
 ```
