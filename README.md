@@ -51,7 +51,7 @@ In your model
 
 ```php
 
-class Page extends \webvimark\components\BaseActiveRecord
+class Page extends ActiveRecord
 {
 	use MultiLanguageTrait;
 
