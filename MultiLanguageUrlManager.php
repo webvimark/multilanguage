@@ -20,14 +20,21 @@ class MultiLanguageUrlManager extends UrlManager
 		{
 			$langPrefix = '<_language:('.implode('|', $languages).')>/';
 
-			$finalRurles[$langPrefix] = '/';
+			$finalRules[$langPrefix] = '/';
 
 			foreach ($this->rules as $rule => $path)
 			{
-				$finalRurles[$langPrefix . ltrim($rule, '/')] = $path;
+				if ( is_array($path) )
+				{
+					$finalRules[$langPrefix . ltrim($path['pattern'], '/')] = $path[0];
+				}
+				else
+				{
+					$finalRules[$langPrefix . ltrim($rule, '/')] = $path;
+				}
 			}
 
-			$this->rules = array_merge($finalRurles, $this->rules);
+			$this->rules = array_merge($finalRules, $this->rules);
 		}
 
 		parent::init();

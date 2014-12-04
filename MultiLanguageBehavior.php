@@ -183,7 +183,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		(new Query())->createCommand()
 			->delete($this->mlConfig['db_table'], [
-				'table_name' => $this->owner->tableName(),
+				'table_name' => $this->owner->getTableSchema()->name,
 				'model_id'   => $this->owner->id,
 			])
 			->execute();
@@ -219,7 +219,7 @@ class MultiLanguageBehavior extends Behavior
 	 */
 	private function mlGetTranslations()
 	{
-		$values = Singleton::getData('_ml_' . $this->owner->tableName());
+		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name);
 
 		if ( !$values )
 		{
@@ -227,11 +227,11 @@ class MultiLanguageBehavior extends Behavior
 				->select(['model_id', 'attribute', 'value', 'lang'])
 				->from($this->mlConfig['db_table'])
 				->where([
-					'table_name' => $this->owner->tableName(),
+					'table_name' => $this->owner->getTableSchema()->name,
 				])
 				->all();
 
-			Singleton::setData('_ml_' . $this->owner->tableName(), $values);
+			Singleton::setData('_ml_' . $this->owner->getTableSchema()->name, $values);
 		}
 
 		return $values;
@@ -242,7 +242,7 @@ class MultiLanguageBehavior extends Behavior
 	 */
 	private function mlGetModelTransactions()
 	{
-		$values = Singleton::getData('_ml_' . $this->owner->tableName());
+		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name);
 
 		if ( !$values )
 		{
@@ -250,12 +250,12 @@ class MultiLanguageBehavior extends Behavior
 				->select(['attribute', 'value', 'lang'])
 				->from($this->mlConfig['db_table'])
 				->where([
-					'table_name' => $this->owner->tableName(),
+					'table_name' => $this->owner->getTableSchema()->name,
 					'model_id'   => $this->owner->id,
 				])
 				->all();
 
-			Singleton::setData('_ml_' . $this->owner->tableName(), $values);
+			Singleton::setData('_ml_' . $this->owner->getTableSchema()->name, $values);
 		}
 
 		return $values;
@@ -271,7 +271,7 @@ class MultiLanguageBehavior extends Behavior
 		if ( !$language )
 			$language = Yii::$app->language;
 
-		$values = Singleton::getData('_ml_' . $this->owner->tableName() . '_' . $language);
+		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name . '_' . $language);
 
 		if ( !$values )
 		{
@@ -279,12 +279,12 @@ class MultiLanguageBehavior extends Behavior
 				->select(['model_id', 'attribute', 'value', 'lang'])
 				->from($this->mlConfig['db_table'])
 				->where([
-					'table_name' => $this->owner->tableName(),
+					'table_name' => $this->owner->getTableSchema()->name,
 					'lang'       => $language,
 				])
 				->all();
 
-			Singleton::setData('_ml_' . $this->owner->tableName() . '_' . $language, $values);
+			Singleton::setData('_ml_' . $this->owner->getTableSchema()->name . '_' . $language, $values);
 		}
 
 		return $values;
@@ -301,7 +301,7 @@ class MultiLanguageBehavior extends Behavior
 			->select('value')
 			->from($this->mlConfig['db_table'])
 			->where([
-				'table_name' => $this->owner->tableName(),
+				'table_name' => $this->owner->getTableSchema()->name,
 				'model_id'   => $this->owner->id,
 				'attribute'  => $name,
 				'lang'       => $language,
@@ -328,7 +328,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		$this->_mlQuery->createCommand()
 			->insert($this->mlConfig['db_table'], [
-				'table_name' => $this->owner->tableName(),
+				'table_name' => $this->owner->getTableSchema()->name,
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
 				'lang'       => $language,
@@ -346,7 +346,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		$this->_mlQuery->createCommand()
 			->update($this->mlConfig['db_table'], ['value'=>$value], [
-				'table_name' => $this->owner->tableName(),
+				'table_name' => $this->owner->getTableSchema()->name,
 				'attribute'  => $name,
 				'model_id'   => $this->owner->id,
 				'lang'       => $language,
