@@ -20,25 +20,29 @@ class MultiLanguageHelper
 	 */
 	public static function catchLanguage()
 	{
-		if(isset($_POST['_language_selector']))
+		if ( isset($_POST['_language_selector']) )
 		{
 			$lang = $_POST['_language_selector'];
 			$MultilangReturnUrl = $_POST[$lang];
 			Yii::$app->controller->redirect($MultilangReturnUrl);
 		}
 
-		if(isset($_GET['_language']))
+		if ( isset($_GET['_language']) )
 		{
 			Yii::$app->language = $_GET['_language'];
 			Yii::$app->session->set('_language', $_GET['_language']);
 
-			$cookie = new Cookie([
-				'name' => '_language',
-				'value' => $_GET['_language'],
-				'expire' => time() + (3600*24*7), // 7 days
-			]);
-
-			Yii::$app->response->cookies->add($cookie);
+			if ( ! Yii::$app->response->cookies['_language'] )
+			{
+				$cookie = new Cookie([
+					'name' => '_language',
+					'value' => $_GET['_language'],
+					'expire' => time() + (3600*24*7), // 7 days
+				]);
+	
+				Yii::$app->response->cookies->add($cookie);	
+			}
+			
 		}
 		elseif (Yii::$app->session->has('_language'))
 		{
