@@ -62,7 +62,7 @@ class MultiLanguageBehavior extends Behavior
 	 */
 	public function loadTranslations()
 	{
-		foreach ($this->mlGetModelTransactions() as $translate)
+		foreach ($this->mlGetModelTranslations() as $translate)
 		{
 			$attribute = $translate['attribute'] . '_' . $translate['lang'];
 
@@ -189,7 +189,7 @@ class MultiLanguageBehavior extends Behavior
 			->execute();
 	}
 
-	// ================= Helpers =================
+	// ================================== Helpers ==================================
 
 	/**
 	 * Initialize virtual attributes like name_en, name_de and fill them with null's
@@ -240,7 +240,7 @@ class MultiLanguageBehavior extends Behavior
 	/**
 	 * @return array
 	 */
-	private function mlGetModelTransactions()
+	private function mlGetModelTranslations()
 	{
 		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name);
 

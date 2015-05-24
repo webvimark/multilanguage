@@ -24,7 +24,7 @@ class MultiLanguageUrlManager extends UrlManager
 
 			foreach ($this->rules as $rule => $path)
 			{
-				if ( is_array($path) )
+				if ( is_array($path) && isset($path['pattern']) && isset($path[0]) )
 				{
 					$finalRules[$langPrefix . ltrim($path['pattern'], '/')] = $path[0];
 				}
@@ -34,7 +34,7 @@ class MultiLanguageUrlManager extends UrlManager
 				}
 			}
 
-			$this->rules = array_merge($finalRules, $this->rules);
+			$this->rules = $finalRules;
 		}
 
 		parent::init();

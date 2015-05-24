@@ -125,4 +125,11 @@ In your _form.php
 		->textInput(['maxlength' => 255])
 		->widget(MultiLanguageActiveField::className()) ?>
 
+
+<?= $form->field($model, 'name')->textarea(['maxlength' => 255, 'rows'=>3])
+		->widget(MultiLanguageActiveField::className(), ['inputType'=>'textArea', 'inputOptions'=>[
+			'rows'=>3,
+			'class'=>'form-control',
+		]]) ?>
+
 ```

@@ -20,24 +20,36 @@ class MultiLanguageHelper
 	 */
 	public static function catchLanguage()
 	{
+		if ( php_sapi_name() == 'cli' )
+		{
+			return;
+		}
+
 		if ( isset($_POST['_language_selector']) )
 		{
 			$lang = $_POST['_language_selector'];
 			$MultilangReturnUrl = $_POST[$lang];
 			Yii::$app->controller->redirect($MultilangReturnUrl);
+			Yii::$app->end();
 		}
 
-		if ( isset($_GET['_language']) )
+		$availableLanguages = array_keys(Yii::$app->params['mlConfig']['languages']);
+
+		if ( isset($_GET['_language']) && in_array($_GET['_language'], $availableLanguages) )
 		{
 			Yii::$app->language = $_GET['_language'];
-			Yii::$app->session->set('_language', $_GET['_language']);
 
-			if ( ! Yii::$app->response->cookies['_language'] )
+			if ( Yii::$app->session->get('_language') != $_GET['_language'] )
+			{
+				Yii::$app->session->set('_language', $_GET['_language']);
+			}
+
+			if ( Yii::$app->response->cookies->get('_language') != $_GET['_language'] )
 			{
 				$cookie = new Cookie([
 					'name' => '_language',
 					'value' => $_GET['_language'],
-					'expire' => time() + (3600*24*7), // 7 days
+					'expire' => time() + (3600*24*30), // 30 days
 				]);
 	
 				Yii::$app->response->cookies->add($cookie);	
@@ -47,6 +59,10 @@ class MultiLanguageHelper
 		elseif (Yii::$app->session->has('_language'))
 		{
 			Yii::$app->language = Yii::$app->session->get('_language');
+		}
+		else
+		{
+			Yii::$app->language = Yii::$app->request->getPreferredLanguage($availableLanguages);
 		}
 
 	}
