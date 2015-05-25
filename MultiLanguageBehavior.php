@@ -125,7 +125,7 @@ class MultiLanguageBehavior extends Behavior
 
 		foreach ($translations as $translate)
 		{
-			if ( $this->owner->id == $translate['model_id'] )
+			if ( $this->owner->primaryKey == $translate['model_id'] )
 			{
 				if ( $this->_replaceOriginalAttributes )
 				{
@@ -184,7 +184,7 @@ class MultiLanguageBehavior extends Behavior
 		(new Query())->createCommand()
 			->delete($this->mlConfig['db_table'], [
 				'table_name' => $this->owner->getTableSchema()->name,
-				'model_id'   => $this->owner->id,
+				'model_id'   => $this->owner->primaryKey,
 			])
 			->execute();
 	}
@@ -251,7 +251,7 @@ class MultiLanguageBehavior extends Behavior
 				->from($this->mlConfig['db_table'])
 				->where([
 					'table_name' => $this->owner->getTableSchema()->name,
-					'model_id'   => $this->owner->id,
+					'model_id'   => $this->owner->primaryKey,
 				])
 				->all();
 
@@ -302,7 +302,7 @@ class MultiLanguageBehavior extends Behavior
 			->from($this->mlConfig['db_table'])
 			->where([
 				'table_name' => $this->owner->getTableSchema()->name,
-				'model_id'   => $this->owner->id,
+				'model_id'   => $this->owner->primaryKey,
 				'attribute'  => $name,
 				'lang'       => $language,
 			])
@@ -330,7 +330,7 @@ class MultiLanguageBehavior extends Behavior
 			->insert($this->mlConfig['db_table'], [
 				'table_name' => $this->owner->getTableSchema()->name,
 				'attribute'  => $name,
-				'model_id'   => $this->owner->id,
+				'model_id'   => $this->owner->primaryKey,
 				'lang'       => $language,
 				'value'      => $value,
 			])
@@ -348,7 +348,7 @@ class MultiLanguageBehavior extends Behavior
 			->update($this->mlConfig['db_table'], ['value'=>$value], [
 				'table_name' => $this->owner->getTableSchema()->name,
 				'attribute'  => $name,
-				'model_id'   => $this->owner->id,
+				'model_id'   => $this->owner->primaryKey,
 				'lang'       => $language,
 			])
 			->execute();
