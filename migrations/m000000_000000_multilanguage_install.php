@@ -1,7 +1,7 @@
 <?php
 use yii\db\Schema;
 
-class m000000_000000_multilnaguage_install extends \yii\db\Migration
+class m000000_000000_multilanguage_install extends \yii\db\Migration
 {
     const TABLE_STRING_NAME = 'translations_with_string';
     const TABLE_TEXT_NAME = 'translations_with_text';
