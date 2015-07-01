@@ -221,7 +221,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name);
 
-		if ( !$values )
+		if ( $values === false )
 		{
 			$values = (new Query())
 				->select(['model_id', 'attribute', 'value', 'lang'])
@@ -273,7 +273,7 @@ class MultiLanguageBehavior extends Behavior
 
 		$values = Singleton::getData('_ml_' . $this->owner->getTableSchema()->name . '_' . $language);
 
-		if ( !$values )
+		if ( $values === false )
 		{
 			$values = (new Query())
 				->select(['model_id', 'attribute', 'value', 'lang'])
