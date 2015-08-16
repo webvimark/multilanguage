@@ -4,13 +4,7 @@ namespace webvimark\behaviors\multilanguage\input_widget;
 use yii\base\Widget;
 use yii\db\ActiveRecord;
 use yii\helpers\Html;
-
-/**
- * Class MultiLanguageActiveField
- *
- * Render ActiveFrom field as
- * @package app\webvimark\behaviors\multilanguage\input_widget
- */
+use Yii;
 class MultiLanguageActiveField extends Widget
 {
 	/**
@@ -40,7 +34,7 @@ class MultiLanguageActiveField extends Widget
 	 */
 	public function run()
 	{
-		if ( $this->model->hasProperty('mlConfig') AND count($this->model->mlConfig['languages']) > 1 )
+		if ( isset(Yii::$app->params['mlConfig']['languages']) && count(Yii::$app->params['mlConfig']['languages']) > 1 )
 			return $this->render('index');
 		else
 			return $this->getInputField($this->attribute);

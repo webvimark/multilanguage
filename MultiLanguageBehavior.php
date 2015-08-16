@@ -79,17 +79,25 @@ class MultiLanguageBehavior extends Behavior
 	{
 		parent::attach($owner);
 
-		foreach ($this->mlGetAttributes() as $attribute)
+		$singletonKey = 'validators_created_' . get_class($this->owner);
+
+		$validatorsCreated = Singleton::getData($singletonKey);
+
+		if ( !$validatorsCreated )
 		{
-			$validators = $this->owner->getActiveValidators($attribute);
-
-			if ( empty($validators) )
+			foreach ($this->mlGetAttributes() as $attribute)
 			{
-				$this->owner->getValidators()
-					->append(Validator::createValidator('string', $this->owner, $attribute));
-			}
-		}
+				$validators = $this->owner->getActiveValidators($attribute);
 
+				if ( empty($validators) )
+				{
+					$this->owner->getValidators()
+						->append(Validator::createValidator('string', $this->owner, $attribute));
+				}
+			}
+
+			Singleton::setData($singletonKey, true);
+		}
 	}
 
 	/**
@@ -369,7 +377,11 @@ class MultiLanguageBehavior extends Behavior
 	 */
 	public function mlGetAttributes()
 	{
-		if ( empty($this->_mlAttributes) )
+		$singletonKey = '_mlAttributes_' . get_class($this->owner);
+
+		$mlAttributes = Singleton::getData($singletonKey);
+
+		if ( $mlAttributes === false )
 		{
 			$mlAttributes = [];
 
@@ -384,10 +396,10 @@ class MultiLanguageBehavior extends Behavior
 				}
 			}
 
-			$this->_mlAttributes = $mlAttributes;
+			Singleton::setData($singletonKey, $mlAttributes);
 		}
 
-		return $this->_mlAttributes;
+		return $mlAttributes;
 	}
 
 } 

@@ -9,7 +9,7 @@ use yii\web\View;
 <?php $sid = uniqid() ?>
 
 <ul class="nav nav-tabs" role="tablist">
-	<?php foreach ($this->context->model->mlConfig['languages'] as $languageCode => $languageName): ?>
+	<?php foreach (Yii::$app->params['mlConfig']['languages'] as $languageCode => $languageName): ?>
 
 		<li class="<?= (Yii::$app->language == $languageCode) ? 'active' : '' ?>">
 			<a href="#<?= $sid . $languageCode ?>" role="tab" data-toggle="tab">
@@ -22,12 +22,12 @@ use yii\web\View;
 
 <div class="tab-content">
 
-	<?php foreach ($this->context->model->mlConfig['languages'] as $languageCode => $languageName): ?>
+	<?php foreach (Yii::$app->params['mlConfig']['languages'] as $languageCode => $languageName): ?>
 
 		<?php
 		$attribute = $this->context->attribute;
 
-		if ( $languageCode != $this->context->model->mlConfig['default_language'] )
+		if ( $languageCode != Yii::$app->params['mlConfig']['default_language'] )
 		{
 			$attribute .= '_' . $languageCode;
 		}
