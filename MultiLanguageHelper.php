@@ -1,6 +1,5 @@
 <?php
-namespace webvimark\behaviors\multilanguage;
-
+namespace kuzmiand\behaviors\multilanguage;
 
 use Yii;
 use yii\helpers\Url;
@@ -35,36 +34,58 @@ class MultiLanguageHelper
 
 		$availableLanguages = array_keys(Yii::$app->params['mlConfig']['languages']);
 
-		if ( isset($_GET['_language']) && in_array($_GET['_language'], $availableLanguages) )
+		if ( isset($_GET['_language']) && in_array($_GET['_language'], $availableLanguages) ) // From URL
 		{
 			Yii::$app->language = $_GET['_language'];
 
-			if ( Yii::$app->session->get('_language') != $_GET['_language'] )
-			{
-				Yii::$app->session->set('_language', $_GET['_language']);
-			}
+			static::saveLanguage(Yii::$app->language);
 
-			if ( Yii::$app->response->cookies->get('_language') != $_GET['_language'] )
-			{
-				$cookie = new Cookie([
-					'name' => '_language',
-					'value' => $_GET['_language'],
-					'expire' => time() + (3600*24*30), // 30 days
-				]);
-	
-				Yii::$app->response->cookies->add($cookie);	
-			}
-			
 		}
-		elseif (Yii::$app->session->has('_language'))
+		elseif ( Yii::$app->session->has('_language') ) // From session
 		{
 			Yii::$app->language = Yii::$app->session->get('_language');
+
+			static::saveLanguage(Yii::$app->language);
+
 		}
-		else
+		elseif ( Yii::$app->response->cookies->has('_language') ) // From cookies
+		{
+			Yii::$app->language = Yii::$app->response->cookies->get('_language')->value;
+
+			static::saveLanguage(Yii::$app->language);
+
+		}
+		else // From browser settings
 		{
 			Yii::$app->language = Yii::$app->request->getPreferredLanguage($availableLanguages);
+
+			static::saveLanguage(Yii::$app->language);
 		}
 
+	}
+
+	/**
+	 * Save language in session and cookie if already stored value differs from provided language
+	 *
+	 * @param string $language
+	 */
+	protected static function saveLanguage($language)
+	{
+		if ( Yii::$app->session->get('_language') != $language )
+		{
+			Yii::$app->session->set('_language', $language);
+		}
+
+		if ( !Yii::$app->response->cookies->get('_language') || Yii::$app->response->cookies->get('_language')->value != $language )
+		{
+			$cookie = new Cookie([
+				'name' => '_language',
+				'value' => $language,
+				'expire' => time() + (3600*24*30), // 30 days
+			]);
+
+			Yii::$app->response->cookies->add($cookie);
+		}
 	}
 
 
