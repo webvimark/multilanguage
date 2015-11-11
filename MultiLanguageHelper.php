@@ -1,5 +1,5 @@
 <?php
-namespace kuzmiand\behaviors\multilanguage;
+namespace webvimark\behaviors\multilanguage;
 
 use Yii;
 use yii\helpers\Url;
