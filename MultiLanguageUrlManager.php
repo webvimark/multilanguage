@@ -34,7 +34,7 @@ class MultiLanguageUrlManager extends UrlManager
 				}
 			}
 
-			$this->rules = $finalRules;
+			$this->rules = array_merge_recursive($finalRules, $this->rules);
 		}
 
 		parent::init();
