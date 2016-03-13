@@ -112,7 +112,7 @@ class MultiLanguageBehavior extends Behavior
 	{
 		$this->mlInitializeAttributes();
 
-		if ( Yii::$app->language == $this->mlConfig['default_language'] OR in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) )
+		if ( Yii::$app->language == $this->mlConfig['default_language'] || in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) || php_sapi_name() === 'cli' )
 		{
 			$this->_replaceOriginalAttributes = false;
 		}
@@ -122,7 +122,7 @@ class MultiLanguageBehavior extends Behavior
 			$val = trim($val, '/');
 		});
 
-		if ( in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) )
+		if ( in_array(Yii::$app->requestedRoute, $this->mlConfig['admin_routes']) || php_sapi_name() === 'cli' )
 		{
 			$translations = $this->mlGetTranslations();
 		}
