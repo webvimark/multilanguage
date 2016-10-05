@@ -7,6 +7,6 @@
 		}
 	},
 	"require": {
-		"webvimark/helpers": "*"
+		"webvimark/helpers": "^1"
 	}
 }
